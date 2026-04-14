@@ -1,6 +1,6 @@
 # File Compressor
 
-A small native Windows C++ app for high-quality compression.
+A Windows desktop app for high-quality file and media compression.
 
 It uses:
 
@@ -17,7 +17,7 @@ This is the practical way to make a good compressor: video compression is a seri
 
 ## Video Encoder
 
-- Fast GPU - Auto: uses a hardware video encoder when available. On this PC, Intel Quick Sync is the reliable GPU path.
+- Fast GPU - Auto: uses a hardware video encoder when available, preferring NVIDIA NVENC when it works.
 - Best quality - CPU x265: slower, but usually gives the best quality for the file size.
 - NVIDIA NVENC / Intel Quick Sync / AMD AMF: manual hardware choices for video compression.
 
@@ -80,3 +80,5 @@ build\FileCompressor.exe
 5. Press `Start All`.
 
 The queue shows each item as it runs, the progress bar tracks the batch, and the activity log shows the generated output path and whether each file became smaller.
+
+After a video finishes, use `Preview` to compare the original and compressed videos side by side.
