@@ -1,0 +1,11 @@
+bin/
+obj/
+dist/
+dist-progress/
+dist-preview-shared/
+build/
+smoke-test/
+.vs/
+*.user
+*.suo
+startup-error.txt

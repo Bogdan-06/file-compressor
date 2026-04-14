@@ -1,0 +1,439 @@
+<Window x:Class="FileCompressorModern.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="File Compressor"
+        Width="1080"
+        Height="700"
+        MinWidth="920"
+        MinHeight="620"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F7FA"
+        FontFamily="Segoe UI"
+        FontSize="13">
+    <Window.Resources>
+        <SolidColorBrush x:Key="InkBrush" Color="#18202F"/>
+        <SolidColorBrush x:Key="MutedBrush" Color="#697586"/>
+        <SolidColorBrush x:Key="LineBrush" Color="#DEE5EF"/>
+        <SolidColorBrush x:Key="PanelBrush" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="SoftBrush" Color="#F0F4F8"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#167E71"/>
+        <SolidColorBrush x:Key="AccentDarkBrush" Color="#10675D"/>
+        <SolidColorBrush x:Key="WarmBrush" Color="#E3A72F"/>
+
+        <Style x:Key="Panel" TargetType="{x:Type Border}">
+            <Setter Property="Background" Value="{StaticResource PanelBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource LineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+
+        <Style x:Key="ButtonBase" TargetType="{x:Type Button}">
+            <Setter Property="MinHeight" Value="34"/>
+            <Setter Property="Padding" Value="14,7"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="{StaticResource InkBrush}"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="{StaticResource LineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="Chrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="7">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="#F2F6FA"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.62"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PrimaryButton" TargetType="{x:Type Button}" BasedOn="{StaticResource ButtonBase}">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style x:Key="GhostButton" TargetType="{x:Type Button}" BasedOn="{StaticResource ButtonBase}">
+            <Setter Property="Background" Value="#F7FAFC"/>
+        </Style>
+
+        <Style x:Key="FieldTextBox" TargetType="{x:Type TextBox}">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="BorderBrush" Value="{StaticResource LineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="FieldCombo" TargetType="{x:Type ComboBox}">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="SectionLabel" TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="{StaticResource MutedBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <DataTemplate x:Key="QueueItemTemplate">
+            <Border Padding="12" Margin="0,0,0,8" Background="#FFFFFF" BorderBrush="#E5EBF3" BorderThickness="1" CornerRadius="8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="44"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="92"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Width="34" Height="34" Background="#EAF6F3" CornerRadius="7" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <TextBlock Text="{Binding KindShort}" Foreground="{StaticResource AccentDarkBrush}" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" Margin="0,-1,10,0">
+                        <TextBlock Text="{Binding Name}" Foreground="{StaticResource InkBrush}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding DisplayPath}" Foreground="{StaticResource MutedBrush}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <TextBlock Text="{Binding SizeText}" Foreground="#4D5968" FontSize="12"/>
+                            <TextBlock Text="  |  " Foreground="#A0A9B6" FontSize="12"/>
+                            <TextBlock Text="{Binding Status}" Foreground="#4D5968" FontSize="12"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding ResultText}"
+                                   Foreground="{StaticResource AccentDarkBrush}"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   TextTrimming="CharacterEllipsis"
+                                   Margin="0,5,0,0"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="2"
+                            Content="Remove"
+                            Style="{StaticResource GhostButton}"
+                            Padding="8,4"
+                            MinHeight="28"
+                            CommandParameter="{Binding}"
+                            Click="RemoveQueueItem_Click"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="76"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="78"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <Border Width="28" Height="28" CornerRadius="7" Background="{StaticResource AccentBrush}">
+                        <TextBlock Text="C" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="Compress Studio" Foreground="{StaticResource InkBrush}" FontSize="22" FontWeight="SemiBold" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock Text="Queue files, choose a quality target, and compress without babysitting every export."
+                           Foreground="{StaticResource MutedBrush}"
+                           Margin="0,7,0,0"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Background="#EAF6F3" BorderBrush="#CFEAE3" BorderThickness="1" CornerRadius="7" Padding="12,7" Margin="0,0,10,0">
+                    <TextBlock Text="FFmpeg ready" Foreground="{StaticResource AccentDarkBrush}" FontWeight="SemiBold"/>
+                </Border>
+                <Button Content="Add Files" Style="{StaticResource GhostButton}" Margin="0,0,8,0" Click="AddFiles_Click"/>
+                <Button Content="Add Folder" Style="{StaticResource GhostButton}" Click="AddFolder_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="0,8,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="340"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0" Margin="0,0,18,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="180"/>
+                    <RowDefinition Height="14"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border x:Name="DropZone"
+                        Grid.Row="0"
+                        Style="{StaticResource Panel}"
+                        AllowDrop="True"
+                        DragOver="DropZone_DragOver"
+                        Drop="DropZone_Drop">
+                    <Grid Margin="22">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="96"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Width="74" Height="74" CornerRadius="8" Background="#EAF6F3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <TextBlock Text="+" Foreground="{StaticResource AccentBrush}" FontSize="44" FontWeight="Light" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="Drop files or folders here" Foreground="{StaticResource InkBrush}" FontSize="20" FontWeight="SemiBold"/>
+                            <TextBlock Text="Videos, images, audio, documents, and folders can share the same queue."
+                                       Foreground="{StaticResource MutedBrush}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,7,24,0"/>
+                        </StackPanel>
+
+                        <Button Grid.Column="2"
+                                Content="Browse"
+                                Style="{StaticResource PrimaryButton}"
+                                Width="104"
+                                VerticalAlignment="Center"
+                                Click="AddFiles_Click"/>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="2" Style="{StaticResource Panel}">
+                    <Grid Margin="16">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Queue" Foreground="{StaticResource InkBrush}" FontSize="17" FontWeight="SemiBold"/>
+                                <Border Background="#EEF3F7" CornerRadius="7" Padding="8,3" Margin="10,0,0,0">
+                                    <TextBlock x:Name="QueueCountText" Text="0 items" Foreground="{StaticResource MutedBrush}" FontSize="12" FontWeight="SemiBold"/>
+                                </Border>
+                            </StackPanel>
+
+                            <Button Content="Clear"
+                                    Style="{StaticResource GhostButton}"
+                                    HorizontalAlignment="Right"
+                                    Width="78"
+                                    MinHeight="30"
+                                    Padding="8,4"
+                                    Click="ClearQueue_Click"/>
+                        </Grid>
+
+                        <Grid Grid.Row="1">
+                            <TextBlock x:Name="EmptyQueueText"
+                                       Text="Your queue is empty. Add a few files and this area becomes your compression list."
+                                       Foreground="{StaticResource MutedBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       TextAlignment="Center"
+                                       Width="330"
+                                       TextWrapping="Wrap"/>
+                            <ListBox x:Name="QueueList"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     ItemTemplate="{StaticResource QueueItemTemplate}"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                                     ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <Border Grid.Column="1" Style="{StaticResource Panel}">
+                <Grid Margin="18">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="18"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="18"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Text="Settings" Foreground="{StaticResource InkBrush}" FontSize="18" FontWeight="SemiBold"/>
+                        <TextBlock Text="Built for clean, high-quality exports first." Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2">
+                        <TextBlock Text="QUALITY TARGET" Style="{StaticResource SectionLabel}" Margin="0,0,0,7"/>
+                        <ComboBox x:Name="QualityCombo" Style="{StaticResource FieldCombo}" SelectedIndex="0">
+                            <ComboBoxItem Content="70% - near-transparent"/>
+                            <ComboBoxItem Content="50% - balanced"/>
+                            <ComboBoxItem Content="30% - small"/>
+                        </ComboBox>
+                        <TextBlock x:Name="QualityHelpText"
+                                   Text="Best when you do not want obvious quality loss."
+                                   Foreground="{StaticResource MutedBrush}"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="4">
+                        <TextBlock Text="VIDEO ENCODER" Style="{StaticResource SectionLabel}" Margin="0,0,0,7"/>
+                        <ComboBox x:Name="EncoderCombo" Style="{StaticResource FieldCombo}" SelectedIndex="1">
+                            <ComboBoxItem Content="Best quality - CPU x265"/>
+                            <ComboBoxItem Content="Fast GPU - Auto"/>
+                            <ComboBoxItem Content="NVIDIA NVENC"/>
+                            <ComboBoxItem Content="Intel Quick Sync"/>
+                            <ComboBoxItem Content="AMD AMF"/>
+                        </ComboBox>
+                        <TextBlock x:Name="EncoderHelpText"
+                                   Text="CPU is slower but usually makes the best-looking file for the size."
+                                   Foreground="{StaticResource MutedBrush}"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   Margin="0,8,0,14"/>
+
+                        <TextBlock Text="OUTPUT FOLDER" Style="{StaticResource SectionLabel}" Margin="0,0,0,7"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="40"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="OutputFolderBox" Style="{StaticResource FieldTextBox}" Margin="0,0,8,0"/>
+                            <Button Grid.Column="1" Content="..." Style="{StaticResource GhostButton}" Padding="0" Click="BrowseOutput_Click"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <Border Grid.Row="5" Background="#F8FAFC" BorderBrush="#E8EEF5" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,6,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Run Summary" Foreground="{StaticResource InkBrush}" FontWeight="SemiBold"/>
+                            <Grid Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Queued" Foreground="{StaticResource MutedBrush}"/>
+                                <TextBlock x:Name="QueuedSummaryText" Grid.Column="1" Text="0" Foreground="{StaticResource InkBrush}" FontWeight="SemiBold"/>
+                            </Grid>
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Total size" Foreground="{StaticResource MutedBrush}"/>
+                                <TextBlock x:Name="TotalSizeText" Grid.Column="1" Text="0 B" Foreground="{StaticResource InkBrush}" FontWeight="SemiBold"/>
+                            </Grid>
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Output type" Foreground="{StaticResource MutedBrush}"/>
+                                <TextBlock Text="Auto" Grid.Column="1" Foreground="{StaticResource InkBrush}" FontWeight="SemiBold"/>
+                            </Grid>
+                            <Border Height="1" Background="#E4EBF3" Margin="0,12,0,12"/>
+                            <TextBlock Text="Latest Result" Foreground="{StaticResource InkBrush}" FontWeight="SemiBold"/>
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Original" Foreground="{StaticResource MutedBrush}"/>
+                                <TextBlock x:Name="LatestOriginalText" Grid.Column="1" Text="-" Foreground="{StaticResource InkBrush}" FontWeight="SemiBold"/>
+                            </Grid>
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Compressed" Foreground="{StaticResource MutedBrush}"/>
+                                <TextBlock x:Name="LatestCompressedText" Grid.Column="1" Text="-" Foreground="{StaticResource InkBrush}" FontWeight="SemiBold"/>
+                            </Grid>
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Change" Foreground="{StaticResource MutedBrush}"/>
+                                <TextBlock x:Name="LatestChangeText" Grid.Column="1" Text="-" Foreground="{StaticResource AccentDarkBrush}" FontWeight="SemiBold"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2" Style="{StaticResource Panel}">
+            <Grid Margin="16,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="240"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel VerticalAlignment="Center">
+                    <Grid>
+                        <TextBlock x:Name="StatusText"
+                                   Text="Ready"
+                                   Foreground="{StaticResource InkBrush}"
+                                   FontWeight="SemiBold"
+                                   TextTrimming="CharacterEllipsis"
+                                   Margin="0,0,90,8"/>
+                        <TextBlock x:Name="ProgressPercentText"
+                                   Text="0%"
+                                   Foreground="{StaticResource MutedBrush}"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,0,0,8"/>
+                    </Grid>
+                    <ProgressBar x:Name="ProgressBar"
+                                 Height="12"
+                                 Minimum="0"
+                                 Maximum="100"
+                                 Value="0"/>
+                </StackPanel>
+
+                <Grid Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="PreviewButton"
+                            Content="Preview"
+                            Style="{StaticResource GhostButton}"
+                            IsEnabled="False"
+                            Click="Preview_Click"/>
+                    <Button x:Name="OpenOutputButton"
+                            Grid.Column="2"
+                            Content="Open Output"
+                            Style="{StaticResource GhostButton}"
+                            IsEnabled="False"
+                            Click="OpenOutput_Click"/>
+                    <Button x:Name="StartAllButton"
+                            Grid.Column="4"
+                            Content="Start All"
+                            Style="{StaticResource PrimaryButton}"
+                            Click="StartAll_Click"/>
+                </Grid>
+
+                <TextBox x:Name="LogBox"
+                         Visibility="Collapsed"
+                         Text="Add files to begin.&#x0d;&#x0a;"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
