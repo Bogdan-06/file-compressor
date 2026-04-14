@@ -36,7 +36,7 @@ For normal files and folders, ZIP compression is lossless. It will preserve the 
 
 On this machine, `ffmpeg`, `cmake`, and `g++` are already installed.
 
-## Run The Modern UI
+## Run The UI
 
 Use this version:
 
