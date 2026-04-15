@@ -40,13 +40,23 @@ GPU encoding is best when you want the job done quickly. CPU x265 is better when
 - .NET 8 SDK or later
 - FFmpeg available on PATH
 
-## Build
+## Run From Source
+
+Use this when you just want to start the app while working on it:
+
+```powershell
+dotnet run --project FileCompressor.Wpf.csproj
+```
+
+## Build An EXE
+
+This creates the `dist` folder:
 
 ```powershell
 dotnet publish FileCompressor.Wpf.csproj -c Release -o dist
 ```
 
-## Run
+Then run the app with:
 
 ```powershell
 & ".\dist\FileCompressor.exe"
