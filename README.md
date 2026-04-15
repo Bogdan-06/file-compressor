@@ -57,6 +57,24 @@ dotnet publish FileCompressor.Wpf.csproj -c Release -o dist
 & ".\dist\FileCompressor.exe"
 ```
 
+## Take It To Another PC
+
+For a school computer, USB drive, or any Windows PC where you do not want to install extra stuff, build the portable ZIP:
+
+```powershell
+.\scripts\Build-Portable.ps1
+```
+
+That creates:
+
+```text
+FileCompressor-portable-win-x64.zip
+```
+
+Extract the ZIP on the other computer and run `FileCompressor.exe`.
+
+The portable build includes the .NET runtime. The script also tries to copy `ffmpeg.exe` and `ffprobe.exe` into the folder, so video/image/audio compression can work even when FFmpeg is not installed on that computer. If the script says either one was not found, copy those two FFmpeg files into the portable folder before taking it with you.
+
 The old C++ prototype is still in the repo. You can build it with:
 
 ```powershell

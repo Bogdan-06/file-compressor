@@ -1,6 +1,7 @@
 bin/
 obj/
 dist/
+dist-portable/
 dist-progress/
 dist-preview-shared/
 build/
@@ -9,3 +10,4 @@ smoke-test/
 *.user
 *.suo
 startup-error.txt
+FileCompressor-portable-*.zip

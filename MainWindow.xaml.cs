@@ -264,6 +264,7 @@ public partial class MainWindow : Window
 
         var spec = BuildProcessSpec(job, kind);
         AppendLog($"{Environment.NewLine}{spec.Description}{Environment.NewLine}");
+        AppendLog($"Tool: {spec.Executable}{Environment.NewLine}");
         AppendLog($"Output: {spec.OutputPath}{Environment.NewLine}{Environment.NewLine}");
 
         var duration = kind == CompressionKind.Video ? GetMediaDurationSeconds(job.InputPath) : 0;
@@ -333,7 +334,22 @@ public partial class MainWindow : Window
             }
         };
 
-        process.Start();
+        try
+        {
+            process.Start();
+        }
+        catch (Exception ex) when (ex is Win32Exception or FileNotFoundException)
+        {
+            var toolName = Path.GetFileName(spec.Executable);
+            var helpText = toolName.Equals("tar.exe", StringComparison.OrdinalIgnoreCase)
+                ? "Windows tar.exe is required for ZIP archives. It is included with current Windows versions."
+                : "Put ffmpeg.exe and ffprobe.exe next to FileCompressor.exe, or install FFmpeg and add it to PATH.";
+
+            throw new InvalidOperationException(
+                $"Could not start {toolName}. {helpText}",
+                ex);
+        }
+
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
         process.WaitForExit();
@@ -354,7 +370,7 @@ public partial class MainWindow : Window
             var quality = job.QualityIndex switch { 0 => "90", 1 => "82", _ => "72" };
             var output = MakeUniqueOutputPath(job.OutputFolder, stem, ".webp");
             return new ProcessSpec(
-                "ffmpeg",
+                FfmpegExecutable(),
                 ["-hide_banner", "-nostdin", "-y", "-i", job.InputPath, "-frames:v", "1", "-c:v", "libwebp", "-q:v", quality, output],
                 output,
                 $"Compressing image as WebP, {QualityName(job.QualityIndex)} preset");
@@ -365,7 +381,7 @@ public partial class MainWindow : Window
             var bitrate = job.QualityIndex switch { 0 => "192k", 1 => "160k", _ => "96k" };
             var output = MakeUniqueOutputPath(job.OutputFolder, stem, ".m4a");
             return new ProcessSpec(
-                "ffmpeg",
+                FfmpegExecutable(),
                 ["-hide_banner", "-nostdin", "-y", "-i", job.InputPath, "-vn", "-c:a", "aac", "-b:a", bitrate, output],
                 output,
                 $"Compressing audio as AAC, {QualityName(job.QualityIndex)} preset");
@@ -378,7 +394,7 @@ public partial class MainWindow : Window
         var fileName = Directory.Exists(job.InputPath) ? new DirectoryInfo(job.InputPath).Name : input.Name;
         var archiveOutput = MakeUniqueOutputPath(job.OutputFolder, stem, ".zip");
         return new ProcessSpec(
-            "tar",
+            ResolveBundledTool("tar.exe"),
             ["-a", "-cf", archiveOutput, "-C", parent, fileName],
             archiveOutput,
             "Creating lossless ZIP archive");
@@ -454,7 +470,7 @@ public partial class MainWindow : Window
         ]);
 
         return new ProcessSpec(
-            "ffmpeg",
+            FfmpegExecutable(),
             [.. args],
             output,
             $"Compressing video with {VideoEncoderLabel(encoder)}, {QualityName(job.QualityIndex)} preset");
@@ -608,7 +624,7 @@ public partial class MainWindow : Window
         {
             var startInfo = new ProcessStartInfo
             {
-                FileName = "ffprobe",
+                FileName = FfprobeExecutable(),
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -767,7 +783,7 @@ public partial class MainWindow : Window
         {
             using var process = Process.Start(new ProcessStartInfo
             {
-                FileName = "ffmpeg",
+                FileName = FfmpegExecutable(),
                 Arguments = "-hide_banner -encoders",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
@@ -789,6 +805,33 @@ public partial class MainWindow : Window
         {
             return "";
         }
+    }
+
+    private static string FfmpegExecutable() => ResolveBundledTool("ffmpeg.exe");
+
+    private static string FfprobeExecutable() => ResolveBundledTool("ffprobe.exe");
+
+    private static string ResolveBundledTool(string executableName)
+    {
+        var localPath = Path.Combine(AppContext.BaseDirectory, executableName);
+        if (File.Exists(localPath))
+        {
+            return localPath;
+        }
+
+        var toolsPath = Path.Combine(AppContext.BaseDirectory, "tools", executableName);
+        if (File.Exists(toolsPath))
+        {
+            return toolsPath;
+        }
+
+        var ffmpegBinPath = Path.Combine(AppContext.BaseDirectory, "ffmpeg", "bin", executableName);
+        if (File.Exists(ffmpegBinPath))
+        {
+            return ffmpegBinPath;
+        }
+
+        return executableName;
     }
 
     private static string VideoEncoderLabel(VideoEncoder encoder) => encoder switch
