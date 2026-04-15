@@ -1,50 +1,49 @@
 # File Compressor
 
-A Windows desktop app for high-quality file and media compression.
+A small Windows app for shrinking videos and other files without making the result look obviously crushed.
 
-It uses:
+The goal is simple: add a few files, pick how hard you want to compress them, run the queue, and check whether the new version is actually worth keeping.
 
-- FFmpeg for video, image, and audio compression.
-- Windows `tar.exe` for ZIP archives of ordinary files or folders.
+For media files, the app uses FFmpeg. For normal files and folders, it creates ZIP archives with Windows `tar.exe`.
 
-This is the practical way to make a good compressor: video compression is a serious codec problem, so the app lets FFmpeg do the hard work and gives you simple presets.
+## What It Can Do
+
+- Compress videos to H.265 MP4.
+- Compress images to WebP.
+- Compress audio to M4A.
+- Zip regular files and folders.
+- Run multiple items in a queue.
+- Show the before and after file size.
+- Preview the original and compressed video side by side.
 
 ## Quality Presets
 
-- Near-transparent: best visual quality, usually still smaller, but not always tiny.
-- Balanced: good default for sharing.
-- Small: stronger compression, more visible quality loss.
+- `70% - near-transparent`: use this when you mostly care about keeping the video looking the same.
+- `50% - balanced`: usually the first preset worth trying.
+- `30% - small`: use this when file size matters more than perfect quality.
 
-## Video Encoder
+Sometimes the compressed video can end up bigger. That usually means the original was already squeezed pretty hard, or the preset is trying to preserve more detail than the source really needs. Try `50%`, `30%`, or `Best quality - CPU x265` if that happens.
 
-- Fast GPU - Auto: uses a hardware video encoder when available, preferring NVIDIA NVENC when it works.
-- Best quality - CPU x265: slower, but usually gives the best quality for the file size.
-- NVIDIA NVENC / Intel Quick Sync / AMD AMF: manual hardware choices for video compression.
+## Video Encoders
 
-GPU encoding is usually much faster. CPU x265 is often better when the goal is the smallest file that still looks clean.
+- `Fast GPU - Auto`: tries hardware encoding first.
+- `NVIDIA NVENC`: uses an NVIDIA GPU.
+- `Intel Quick Sync`: uses Intel integrated graphics.
+- `AMD AMF`: uses an AMD GPU.
+- `Best quality - CPU x265`: slower, but often gives the best size-to-quality result.
 
-For video, the app outputs H.265/HEVC MP4 files. The near-transparent preset uses a low CRF value so the result should look extremely close to the original in normal viewing. If the original file is already heavily compressed, the new file might not shrink much and can sometimes become larger.
-
-For normal files and folders, ZIP compression is lossless. It will preserve the original exactly, but already-compressed files such as MP4, JPG, PNG, ZIP, and game assets may not shrink much.
+GPU encoding is best when you want the job done quickly. CPU x265 is better when you are patient and want a smaller file that still looks clean.
 
 ## Requirements
 
 - Windows
-- CMake
-- A C++17 compiler, such as MSYS2 MinGW
+- .NET 8 SDK or later
 - FFmpeg available on PATH
 
-On this machine, `ffmpeg`, `cmake`, and `g++` are already installed.
+Optional, only for the older C++ prototype:
 
-## Run The UI
-
-Use this version:
-
-```text
-dist\FileCompressor.exe
-```
-
-The older C++ Win32 prototype still exists in `build\FileCompressor.exe`, but the WPF app in `dist` is the polished interface.
+- CMake
+- A C++17 compiler, such as MSYS2 MinGW
 
 ## Build
 
@@ -52,33 +51,26 @@ The older C++ Win32 prototype still exists in `build\FileCompressor.exe`, but th
 dotnet publish FileCompressor.Wpf.csproj -c Release -o dist
 ```
 
-The modern app will be created at:
+## Run
 
-```text
-dist\FileCompressor.exe
+```powershell
+& ".\dist\FileCompressor.exe"
 ```
 
-The original C++ prototype can still be built with:
+The old C++ prototype is still in the repo. You can build it with:
 
 ```powershell
 cmake -S . -B build -G "MinGW Makefiles"
 cmake --build build
 ```
 
-The C++ prototype will be created at:
-
-```text
-build\FileCompressor.exe
-```
-
 ## How To Use
 
 1. Open the app.
-2. Click `Add Files`, `Add Folder`, or drag files/folders into the drop area.
+2. Add files, add a folder, or drag files into the drop area.
 3. Choose an output folder.
-4. Pick `70% - near-transparent` when you care most about quality.
-5. Press `Start All`.
+4. Pick a quality preset.
+5. Pick a video encoder if you are compressing videos.
+6. Press `Start All`.
 
-The queue shows each item as it runs, the progress bar tracks the batch, and the activity log shows the generated output path and whether each file became smaller.
-
-After a video finishes, use `Preview` to compare the original and compressed videos side by side.
+When a video finishes, click `Preview` to compare the original and compressed versions side by side.
