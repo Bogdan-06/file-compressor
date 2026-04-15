@@ -40,11 +40,6 @@ GPU encoding is best when you want the job done quickly. CPU x265 is better when
 - .NET 8 SDK or later
 - FFmpeg available on PATH
 
-Optional, only for the older C++ prototype:
-
-- CMake
-- A C++17 compiler, such as MSYS2 MinGW
-
 ## Build
 
 ```powershell
@@ -74,13 +69,6 @@ FileCompressor-portable-win-x64.zip
 Extract the ZIP on the other computer and run `FileCompressor.exe`.
 
 The portable build includes the .NET runtime. The script also tries to copy `ffmpeg.exe` and `ffprobe.exe` into the folder, so video/image/audio compression can work even when FFmpeg is not installed on that computer. If the script says either one was not found, copy those two FFmpeg files into the portable folder before taking it with you.
-
-The old C++ prototype is still in the repo. You can build it with:
-
-```powershell
-cmake -S . -B build -G "MinGW Makefiles"
-cmake --build build
-```
 
 ## How To Use
 
