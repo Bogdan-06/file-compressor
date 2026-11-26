@@ -6,7 +6,7 @@ The goal is simple: add a few files, pick how hard you want to compress them, ru
 
 For media files, the app uses FFmpeg. For normal files and folders, it creates ZIP archives with Windows `tar.exe`.
 
-## What It Can Do
+## What IT Can Do
 
 - Compress videos to H.265 MP4.
 - Compress images to WebP.
